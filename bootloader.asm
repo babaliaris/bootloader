@@ -33,6 +33,7 @@ bsFileSystem: 	        DB "FAT12   "
 ;Main
 main:
 
+    ;********************Initialization Of Segments********************;
     cli
 
     ;Initialize the stack.
@@ -52,30 +53,42 @@ main:
 
     sti
 
+    ;********************Initialization Of Segments********************;
+
+
+
+
+
+
+
+
+    ;***************Try to read 1 sector from the disk*****************;
+    ;I'M NOT CHANGING dl SINCE BIOS ALREADY SET IT TO THE BOOT DRIVE
+
     ;Try 10 times to resset the disk.
     xor bx, bx
     disk_resset_while:
-        inc     bx
-        cmp     bx, 10
-        je      disk_resset_error
-        mov     ah, 0x0000
-        int     0x13
-        jc      disk_resset_while
+        inc     bx                  ;Increament the while counter (bx)
+        cmp     bx, 10              ;Compare if bx==10
+        je      disk_resset_error   ;Jump to reset error if bx==10
+        mov     ah, 0x0000          ;int 0x13 reset disk operation.
+        int     0x13                ;int 0x13 disk operations.
+        jc      disk_resset_while   ;if disk error, try again.
 
 
     ;Try 10 times to read the disk.
     xor     bx, bx
     disk_read_while:
-        inc     bx
-        cmp     bx, 10
-        je      disk_read_error
-        mov     ah, 0x02    ;Read disk operation.
-        mov     al, 1       ;Sector Read Count = 1
-        mov     ch, 0       ;Select cylinder 0
-        mov     cl, 2       ;Start from sector 2
-        mov     dh, 0       ;Select head 0
-        int     0x13        ;Interrupt for disk operations.
-        jc      disk_read_while
+        inc     bx                  ;Increament the while counter (bx)
+        cmp     bx, 10              ;Compare if bx==10
+        je      disk_read_error     ;Jump to disk error if bx==10
+        mov     ah, 0x02            ;int 0x13 read disk operation.
+        mov     al, 1               ;Sector Read Count = 1
+        mov     ch, 0               ;Select cylinder 0
+        mov     cl, 2               ;Start from sector 2
+        mov     dh, 0               ;Select head 0
+        int     0x13                ;Interrupt for disk operations.
+        jc      disk_read_while     ;if disk error, try again.
 
 
     ;Clear bx and jump the end.
@@ -97,7 +110,9 @@ main:
     end:
         call print_static
         
+    ;Stay here forever!!!
     jmp $
+    ;***************Try to read 1 sector from the disk*****************;
 
 
 ;Get a null terminated character stored in the data segment and print it.
@@ -113,7 +128,7 @@ print_static:
     
     ;Print while loop.
     print_static_while:
-        mov al, [si] ;copy the current character to al.
+        mov al, [ds:si] ;copy the current character to al.
         cmp al, 0 ;if its zero
         je print_static_end ;stop;
         int 0x10 ;else print al to the screen.
