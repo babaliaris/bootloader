@@ -2,9 +2,17 @@
 [org 0x7c00]
 
 ;Initialize the stack.
+cli
 mov bp, 0x7e00 ;This is the address where the 512 bootloader ends.
 add bp, 50000  ;Set the bp and sp 50kb above the bootloader.
 mov sp, bp     ; Finally we have 50kb stack.
+sti
+
+;Clear all the segment registers.
+xor ax, ax
+mov ds, ax
+mov es, ax
+mov ss, ax
 
 ;Print a static string.
 mov bx, hello_world
