@@ -37,9 +37,8 @@ main:
     cli
 
     ;Initialize the stack.
-    mov bp, 0x7e00 ;This is the address where the 512 bootloader ends.
-    add bp, 50000  ;bp = 0x14150
-    mov sp, bp     ; Finally we have 50kb stack.
+    mov bp, 0x8000
+    mov sp, bp
 
 
     ;Clear all the segment registers.
@@ -78,7 +77,9 @@ main:
 
     ;Try 10 times to read the disk.
     xor     bx, bx
+    push    bx
     disk_read_while:
+        pop     bx                  ;Pop bx from the stack.
         inc     bx                  ;Increament the while counter (bx)
         cmp     bx, 10              ;Compare if bx==10
         je      disk_read_error     ;Jump to disk error if bx==10
@@ -87,12 +88,15 @@ main:
         mov     ch, 0               ;Select cylinder 0
         mov     cl, 2               ;Start from sector 2
         mov     dh, 0               ;Select head 0
+        push    bx                  ;save the current value of bx.
+        xor     bx, bx              ;Clear bx before the read
         int     0x13                ;Interrupt for disk operations.
         jc      disk_read_while     ;if disk error, try again.
+    
+    ;Don't forget to clear the last push!
+    pop ax 
 
-
-    ;Clear bx and jump the end.
-    xor bx, bx
+    ;Successfully read the disk!
     mov si, success_msg
     jmp end
 
