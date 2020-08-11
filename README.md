@@ -1,5 +1,5 @@
 # bootloader
-Just learning how to build a bootloader :)
+Just learning how to build a bootloader.
 
 
 # Depedencies
