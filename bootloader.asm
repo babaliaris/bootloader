@@ -103,15 +103,18 @@ main:
     ;Read Error.
     disk_read_error:
         mov si, read_error
-        xor bx, bx
-        mov bl, ah
-        mov ax, bx
+
+        ;Prepare the ax param of the print_hex routine
+        ;to print the return code of the int 0x13
+        xor bx, bx  ;clear bx
+        mov bl, ah  ;copy the int 0x13 return code to bl.
+        mov ax, bx  ;copy bx that contains the return code to ax.
     
 
     ;Success.
     end:
-        call print_static
-        call print_hex
+        call print_static ;[in]=si
+        call print_hex    ;[in]=ax (ax contains the number that you want to print to the screen)
         
     ;Stay here forever!!!
     jmp $
