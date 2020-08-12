@@ -56,11 +56,6 @@ main:
 
 
 
-
-
-
-
-
     ;***************Try to read 1 sector from the disk*****************;
     ;I'M NOT CHANGING dl SINCE BIOS ALREADY SET IT TO THE BOOT DRIVE
 
@@ -108,44 +103,23 @@ main:
     ;Read Error.
     disk_read_error:
         mov si, read_error
+        xor bx, bx
+        mov bl, ah
+        mov ax, bx
     
 
     ;Success.
     end:
         call print_static
+        call print_hex
         
     ;Stay here forever!!!
     jmp $
     ;***************Try to read 1 sector from the disk*****************;
 
 
-;Get a null terminated character stored in the data segment and print it.
-;[in] : si (Pointer at the beggining of the string)
-;[out]: void
-print_static:
-
-    ;Save all general purpose registers.
-    pusha
-    
-    ;Bios function for int 0x10 to print a char to the screen.
-    mov ah, 0x0e
-    
-    ;Print while loop.
-    print_static_while:
-        mov al, [ds:si] ;copy the current character to al.
-        cmp al, 0 ;if its zero
-        je print_static_end ;stop;
-        int 0x10 ;else print al to the screen.
-        add si, 1;go to the next character.
-        jmp print_static_while ;start again.
-
-
-    ;exit print_static
-    print_static_end:
-
-        ;Retrieve all general purpose registers.
-        popa
-        ret
+%include "include/print_static.asm"
+%include "include/print_hex.asm"
 
 
 ;Data
